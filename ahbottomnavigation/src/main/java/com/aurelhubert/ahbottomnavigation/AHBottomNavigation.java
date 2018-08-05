@@ -77,6 +77,7 @@ public class AHBottomNavigation extends FrameLayout {
 	private Context context;
 	private Resources resources;
 	private ArrayList<AHBottomNavigationItem> items = new ArrayList<>();
+	ArrayList<Boolean> itemsTint = new ArrayList<>();
 	private ArrayList<View> views = new ArrayList<>();
 	private AHBottomNavigationBehavior<AHBottomNavigation> bottomNavigationBehavior;
 	private LinearLayout linearLayoutContainer;
@@ -466,12 +467,12 @@ public class AHBottomNavigation extends FrameLayout {
 					}
 				});
 				icon.setImageDrawable(AHHelper.getTintDrawable(items.get(i).getDrawable(context),
-						current ? itemActiveColor : itemInactiveColor, forceTint));
+						current ? itemActiveColor : itemInactiveColor, forceTint, itemsTint.get(i)));
 				title.setTextColor(current ? itemActiveColor : itemInactiveColor);
 				view.setSoundEffectsEnabled(soundEffectsEnabled);
 			} else {
 				icon.setImageDrawable(AHHelper.getTintDrawable(items.get(i).getDrawable(context),
-						itemDisableColor, forceTint));
+						itemDisableColor, forceTint, itemsTint.get(i)));
 				title.setTextColor(itemDisableColor);
 			}
 
@@ -583,7 +584,7 @@ public class AHBottomNavigation extends FrameLayout {
 
 			if (itemsEnabledStates[i]) {
 				icon.setImageDrawable(AHHelper.getTintDrawable(items.get(i).getDrawable(context),
-						currentItem == i ? itemActiveColor : itemInactiveColor, forceTint));
+						currentItem == i ? itemActiveColor : itemInactiveColor, forceTint, itemsTint.get(i)));
 				title.setTextColor(currentItem == i ? itemActiveColor : itemInactiveColor);
 				title.setAlpha(currentItem == i ? 1 : 0);
 				view.setOnClickListener(new OnClickListener() {
@@ -595,7 +596,7 @@ public class AHBottomNavigation extends FrameLayout {
 				view.setSoundEffectsEnabled(soundEffectsEnabled);
 			} else {
 				icon.setImageDrawable(AHHelper.getTintDrawable(items.get(i).getDrawable(context),
-						itemDisableColor, forceTint));
+						itemDisableColor, forceTint, itemsTint.get(i)));
 				title.setTextColor(itemDisableColor);
 				title.setAlpha(0);
 			}
@@ -668,7 +669,7 @@ public class AHBottomNavigation extends FrameLayout {
 				AHHelper.updateTextColor(title, itemInactiveColor, itemActiveColor);
 				AHHelper.updateTextSize(title, inactiveSize, activeSize);
 				AHHelper.updateDrawableColor(context, items.get(itemIndex).getDrawable(context), icon,
-						itemInactiveColor, itemActiveColor, forceTint);
+						itemInactiveColor, itemActiveColor, forceTint, itemsTint.get(i));
 
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && colored) {
 
@@ -729,7 +730,7 @@ public class AHBottomNavigation extends FrameLayout {
 				AHHelper.updateTextColor(title, itemActiveColor, itemInactiveColor);
 				AHHelper.updateTextSize(title, activeSize, inactiveSize);
 				AHHelper.updateDrawableColor(context, items.get(currentItem).getDrawable(context), icon,
-						itemActiveColor, itemInactiveColor, forceTint);
+						itemActiveColor, itemInactiveColor, forceTint, itemsTint.get(i));
 			}
 		}
 
@@ -795,7 +796,7 @@ public class AHBottomNavigation extends FrameLayout {
 
 				AHHelper.updateAlpha(title, 0, 1);
 				AHHelper.updateDrawableColor(context, items.get(itemIndex).getDrawable(context), icon,
-						itemInactiveColor, itemActiveColor, forceTint);
+						itemInactiveColor, itemActiveColor, forceTint, itemsTint.get(i));
 
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && colored) {
 					int finalRadius = Math.max(getWidth(), getHeight());
@@ -862,7 +863,7 @@ public class AHBottomNavigation extends FrameLayout {
 
 				AHHelper.updateAlpha(title, 1, 0);
 				AHHelper.updateDrawableColor(context, items.get(currentItem).getDrawable(context), icon,
-						itemActiveColor, itemInactiveColor, forceTint);
+						itemActiveColor, itemInactiveColor, forceTint, itemsTint.get(i));
 			}
 		}
 
@@ -923,10 +924,10 @@ public class AHBottomNavigation extends FrameLayout {
 					Drawable defautlDrawable = ContextCompat.getDrawable(context, R.drawable.notification_background);
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 						notification.setBackground(AHHelper.getTintDrawable(defautlDrawable,
-								currentBackgroundColor, forceTint));
+								currentBackgroundColor, forceTint, itemsTint.get(i)));
 					} else {
 						notification.setBackgroundDrawable(AHHelper.getTintDrawable(defautlDrawable,
-								currentBackgroundColor, forceTint));
+								currentBackgroundColor, forceTint, itemsTint.get(i)));
 					}
 				}
 			}
@@ -967,22 +968,24 @@ public class AHBottomNavigation extends FrameLayout {
 	/**
 	 * Add an item
 	 */
-	public void addItem(AHBottomNavigationItem item) {
+	public void addItem(AHBottomNavigationItem item, final boolean isTintable) {
 		if (this.items.size() > MAX_ITEMS) {
 			Log.w(TAG, "The items list should not have more than 5 items");
 		}
 		items.add(item);
+		itemsTint.add(isTintable);
 		createItems();
 	}
 
 	/**
 	 * Add all items
 	 */
-	public void addItems(List<AHBottomNavigationItem> items) {
+	public void addItems(List<AHBottomNavigationItem> items, List<Boolean> itemsTint) {
 		if (items.size() > MAX_ITEMS || (this.items.size() + items.size()) > MAX_ITEMS) {
 			Log.w(TAG, "The items list should not have more than 5 items");
 		}
 		this.items.addAll(items);
+		this.itemsTint.addAll(itemsTint);
 		createItems();
 	}
 
@@ -992,6 +995,7 @@ public class AHBottomNavigation extends FrameLayout {
 	public void removeItemAtIndex(int index) {
 		if (index < items.size()) {
 			this.items.remove(index);
+			this.itemsTint.remove(index);
 			createItems();
 		}
 	}
@@ -1001,6 +1005,7 @@ public class AHBottomNavigation extends FrameLayout {
 	 */
 	public void removeAllItems() {
 		this.items.clear();
+		this.itemsTint.clear();
 		createItems();
 	}
 
@@ -1172,6 +1177,14 @@ public class AHBottomNavigation extends FrameLayout {
 			return null;
 		}
 		return items.get(position);
+	}
+
+	public boolean getTint(int position) {
+		if (position < 0 || position > itemsTint.size() - 1) {
+			Log.w(TAG, "The position is out of bounds of the items (" + itemsTint.size() + " elements)");
+			return false;
+		}
+		return itemsTint.get(position);
 	}
 
 	/**

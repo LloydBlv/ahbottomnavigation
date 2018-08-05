@@ -32,7 +32,8 @@ public class AHHelper {
 	 * @param forceTint
 	 * @return
 	 */
-	public static Drawable getTintDrawable(Drawable drawable, @ColorInt int color, boolean forceTint) {
+	public static Drawable getTintDrawable(Drawable drawable, @ColorInt int color, boolean forceTint, boolean shouldTint) {
+		if(!shouldTint) return drawable;
 		if (forceTint) {
 			drawable.clearColorFilter();
 			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
@@ -173,14 +174,14 @@ public class AHHelper {
 	 */
 	public static void updateDrawableColor(final Context context, final Drawable drawable,
 	                                       final ImageView imageView, @ColorInt int fromColor,
-	                                       @ColorInt int toColor, final boolean forceTint) {
+	                                       @ColorInt int toColor, final boolean forceTint, final boolean skipTint) {
 		ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), fromColor, toColor);
 		colorAnimation.setDuration(150);
 		colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 			@Override
 			public void onAnimationUpdate(ValueAnimator animator) {
 				imageView.setImageDrawable(AHHelper.getTintDrawable(drawable,
-						(Integer) animator.getAnimatedValue(), forceTint));
+						(Integer) animator.getAnimatedValue(), forceTint, skipTint));
 				imageView.requestLayout();
 			}
 		});

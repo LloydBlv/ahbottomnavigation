@@ -17,6 +17,7 @@ public class AHBottomNavigationAdapter {
 
 	private Menu mMenu;
 	private List<AHBottomNavigationItem> navigationItems;
+	private List<Boolean> navigationItemsTint;
 
 	/**
 	 * Constructor
@@ -48,8 +49,10 @@ public class AHBottomNavigationAdapter {
 	public void setupWithBottomNavigation(AHBottomNavigation ahBottomNavigation, @ColorInt int[] colors) {
 		if (navigationItems == null) {
 			navigationItems = new ArrayList<>();
+			navigationItemsTint = new ArrayList<>();
 		} else {
 			navigationItems.clear();
+			navigationItemsTint.clear();
 		}
 
 		if (mMenu != null) {
@@ -58,13 +61,16 @@ public class AHBottomNavigationAdapter {
 				if (colors != null && colors.length >= mMenu.size() && colors[i] != 0) {
 					AHBottomNavigationItem navigationItem = new AHBottomNavigationItem(String.valueOf(item.getTitle()), item.getIcon(), colors[i]);
 					navigationItems.add(navigationItem);
+					navigationItemsTint.add(true);
 				} else {
 					AHBottomNavigationItem navigationItem = new AHBottomNavigationItem(String.valueOf(item.getTitle()), item.getIcon());
 					navigationItems.add(navigationItem);
+					navigationItemsTint.add(true);
+
 				}
 			}
 			ahBottomNavigation.removeAllItems();
-			ahBottomNavigation.addItems(navigationItems);
+			ahBottomNavigation.addItems(navigationItems  ,navigationItemsTint);
 		}
 	}
 
